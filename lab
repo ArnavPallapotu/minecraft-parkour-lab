@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
+if [[ -x runtime/node/bin/node ]]; then
+  export PATH="$PWD/runtime/node/bin:$PATH"
+fi
+export MPLCONFIGDIR="$PWD/runs/.matplotlib"
+action="${1:-help}"
+if (( $# )); then shift; fi
+case "$action" in
+  setup)
+    exec python3 scripts/setup.py "$@"
+    ;;
+  start|sim|server-download)
+    if ! command -v node >/dev/null; then echo 'Run ./lab setup first.'; exit 1; fi
+    case "$action" in
+      start) exec node src/lab.js "$@" ;;
+      sim) exec node src/lab.js --sim-only "$@" ;;
+      server-download) exec node scripts/setup-server.js "$@" ;;
+    esac
+    ;;
+  train|watch|test)
+    if [[ ! -x .venv/bin/python ]]; then
+      echo 'Run ./lab setup in your WSL clone first. A Windows .venv cannot run in Linux.'
+      exit 1
+    fi
+    case "$action" in
+      train) exec .venv/bin/python train.py "$@" ;;
+      watch) exec .venv/bin/python watch.py "$@" ;;
+      test)
+        node --test test/*.test.js
+        exec .venv/bin/python -m unittest discover -s test -p 'test_*.py' -v
+        ;;
+    esac
+    ;;
+  *)
+    cat <<'HELP'
+Minecraft Parkour Learning Lab
+
+  ./lab setup                     Install local training dependencies and download the server
+  ./lab train                     Train a neural network in the fast simulator
+  ./lab train --steps 50000        Train longer
+  ./lab start                     Start Minecraft; asks you to accept its EULA
+  ./lab watch                     Watch your latest model (or the included example)
+  ./lab watch --backend sim       Evaluate without starting Minecraft
+  ./lab sim                       Keep a simulator service running
+  ./lab test                      Run the tests
+
+Minecraft Java 1.21.11 on Windows connects to 127.0.0.1:25575.
+HELP
+    ;;
+esac

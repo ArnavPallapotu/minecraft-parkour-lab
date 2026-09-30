@@ -1,0 +1,14 @@
+node_modules/
+.venv/
+.venv-*/
+runtime/
+server/
+models/
+runs/
+.bridge.json
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+*.log
+.DS_Store

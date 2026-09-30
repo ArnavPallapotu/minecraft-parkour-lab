@@ -1,0 +1,19 @@
+{
+  "name": "minecraft-parkour-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Train a neural parkour policy and watch it in Minecraft Java 1.21.11.",
+  "scripts": {
+    "start": "node src/lab.js",
+    "sim": "node src/lab.js --sim-only",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "mineflayer": "4.39.0",
+    "minecraft-data": "3.117.0",
+    "prismarine-block": "1.23.0",
+    "prismarine-physics": "1.11.1",
+    "vec3": "0.1.10"
+  }
+}
